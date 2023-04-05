@@ -1,0 +1,111 @@
+package main
+
+import (
+	"fmt"
+	"math"
+	"os"
+	"strconv"
+	"strings"
+	"testing"
+)
+
+var data, _ = os.ReadFile("input.txt")
+var line = strings.Split(string(data[:]), "\n")
+
+func TestPart1(t *testing.T) {
+	input, foldInstruction := parseInput(&line)
+	fold(input, foldInstruction[0])
+	cnt := countVisible(input)
+	fmt.Printf("count : %d", cnt)
+}
+
+// Golang doesn't have a stream of collection or foreach to run simple lambda function like a java
+// I need to make a simple function
+func countVisible(input *[][]bool) (cnt int) {
+	for x := 0; x < len(*input); x++ {
+		for y := 0; y < len((*input)[0]); y++ {
+			if (*input)[x][y] {
+				cnt++
+			}
+		}
+	}
+	return
+}
+
+func fold(input *[][]bool, str string) {
+
+	var foldX, foldY int
+	foldStr := strings.Split(str, "=")
+
+	if strings.HasPrefix(str, "fold along y=") {
+		foldY, _ = strconv.Atoi(foldStr[1])
+	} else {
+		foldX, _ = strconv.Atoi(foldStr[1])
+	}
+
+	for y := 0; y < len(*input); y++ {
+		for x := 0; x < len((*input)[0]); x++ {
+			if foldY != 0 && y > foldY {
+				newY := math.Abs(float64(y - foldY*2))
+				if (*input)[y][x] {
+					(*input)[int(newY)][x] = (*input)[y][x]
+				}
+			}
+			if foldX != 0 && x > foldX {
+				newX := math.Abs(float64(x - foldX*2))
+				if (*input)[y][x] {
+					(*input)[y][int(newX)] = (*input)[y][x]
+				}
+			}
+		}
+	}
+	if foldY != 0 {
+		*input = (*input)[0:foldY]
+	}
+	if foldX != 0 {
+		for y := 0; y < len(*input); y++ {
+			(*input)[y] = (*input)[y][0:foldX]
+		}
+	}
+}
+
+func parseInput(line *[]string) (input *[][]bool, foldingInstruction []string) {
+	var maxX, maxY int
+
+	for _, line := range *line {
+		if strings.HasPrefix(line, "fold") {
+			foldingInstruction = append(foldingInstruction, line)
+		}
+		xy := strings.Split(line, ",")
+		x, errX := strconv.Atoi(xy[0])
+		if errX != nil {
+			continue
+		}
+		y, _ := strconv.Atoi(xy[1])
+		if x > maxX {
+			maxX = x
+		}
+		if y > maxY {
+			maxY = y
+		}
+	}
+
+	xys := make([][]bool, maxY+1)
+	for i := range xys {
+		xys[i] = make([]bool, maxX+1)
+	}
+
+	for _, line := range *line {
+		xy := strings.Split(line, ",")
+		x, errX := strconv.Atoi(xy[0])
+		if errX != nil {
+			break
+		}
+		y, _ := strconv.Atoi(xy[1])
+		xys[y][x] = true
+	}
+
+	fmt.Printf("maxX : %d, maxY : %d ", maxX, maxY)
+	fmt.Printf("x : %d, y : %d, value = %t\n", len(xys), len(xys[0]), xys[0][0])
+	return &xys, foldingInstruction
+}

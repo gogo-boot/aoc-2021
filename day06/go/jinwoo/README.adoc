@@ -1,0 +1,75 @@
+= Day 6
+
+=== How to execute
+```
+$ go test
+```
+
+=== Par1 Solution
+```go:
+var data, _ = os.ReadFile("input.txt")
+var input = strings.Split(string(data[:]), ",")
+
+func TestPart1(t *testing.T) {
+	fish := convertIntSlice(input)
+	fishCnt := dayAfterDay(fish, 80)
+	fmt.Println(fishCnt)
+}
+
+func convertIntSlice(strings []string) []int {
+	ints := make([]int, len(strings))
+	for i, s := range strings {
+		ints[i], _ = strconv.Atoi(s)
+	}
+	return ints
+}
+
+func dayAfterDay(fish []int, days int) (cnt int) {
+	for i := 0; i < days; i++ {
+		fishCnt := len(fish)
+		for j := 0; j < fishCnt; j++ {
+			fish[j]--
+			if fish[j] < 0 {
+				fish[j] = 6
+				fish = append(fish, 8)
+			}
+		}
+	}
+	return len(fish)
+}
+```
+
+=== Part2 Solution
+```go:
+
+func TestPart2(t *testing.T) {
+	fish := convertIntSlice(input)
+	fishCnt := dayAfterDay2(fish, 256)
+	fmt.Println(fishCnt)
+}
+
+func dayAfterDay2(fish []int, days int) (cnt float64) {
+	bucket := []float64{0,0,0,0,0,0,0,0,0}
+	for _, fish := range fish{
+		bucket[fish]++
+	}
+	var bucket0 float64
+	for i:=0; i<days; i++{
+		bucket0 = bucket[0]
+		bucket[0] = bucket[1]
+		bucket[1] = bucket[2]
+		bucket[2] = bucket[3]
+		bucket[3] = bucket[4]
+		bucket[4] = bucket[5]
+		bucket[5] = bucket[6]
+		bucket[6] = bucket[7]
+		bucket[7] = bucket[8]
+		bucket[8] = bucket0
+		bucket[6] += bucket0
+	}
+	sum, _ := stats.Sum(bucket)
+	return sum
+}
+
+```
+

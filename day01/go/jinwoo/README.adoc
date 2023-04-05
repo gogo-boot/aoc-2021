@@ -1,0 +1,11 @@
+= Day 1
+
+=== How to execute
+```
+$ go test
+Part 1 Answer : 1316
+Part 2 Answer : 1344
+PASS
+ok      db.de   0.173s
+
+```
